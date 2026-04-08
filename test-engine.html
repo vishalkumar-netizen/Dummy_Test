@@ -106,11 +106,9 @@
         // ==========================================
         // 1. DATA ARRAYS (PASTE YOUR 1000+ DATA HERE)
         // ==========================================
-        const TAT_IMAGES_POOL = [
-            "https://raw.githubusercontent.com/ssbarena/ssbarena.github.io/master/tatpics/tat1.jpg",
-            "https://raw.githubusercontent.com/ssbarena/ssbarena.github.io/master/tatpics/tat2.jpg",
-            // Add your hundreds of image URLs here
-        ];
+        const PPDT_IMAGES_POOL = Array.from({length: 150}, (_, i) => `https://raw.githubusercontent.com/vishalkumar-netizen/TTPPPIC/1cc1e19b0bd9334670615db849c2a9148d3e0826/PPDT%20(${i + 1}).jpg`);
+        
+        const TAT_IMAGES_POOL = Array.from({length: 580}, (_, i) => `https://raw.githubusercontent.com/vishalkumar-netizen/TTPPPIC/dacf27ba8d5775a9d914b896b22d4b7474226fa1/TAT%20(${i + 1}).jpg`);
         
         const WAT_WORDS_POOL = [
             "Accept", "Achieve", "Action", "Active", "Adopt", "Aim", "Alert", "Angry", "Army", "Attack",
@@ -158,16 +156,31 @@
             } catch (e) { console.warn("Beep blocked"); }
         }
 
+        // UPGRADED FULLSCREEN LOGIC
         function enterFullscreen() {
+            const docElm = document.documentElement;
             try {
-                const docElm = document.documentElement;
-                if (docElm.requestFullscreen) docElm.requestFullscreen().catch(()=>{});
-                else if (docElm.webkitRequestFullScreen) docElm.webkitRequestFullScreen();
-            } catch (e) {}
+                if (docElm.requestFullscreen) {
+                    docElm.requestFullscreen().catch(err => console.warn("Fullscreen blocked: " + err.message));
+                } else if (docElm.webkitRequestFullscreen) { // Chrome, Safari
+                    docElm.webkitRequestFullscreen();
+                } else if (docElm.mozRequestFullScreen) { // Firefox
+                    docElm.mozRequestFullScreen();
+                } else if (docElm.msRequestFullscreen) { // IE/Edge
+                    docElm.msRequestFullscreen();
+                }
+            } catch (e) {
+                console.warn("Fullscreen API error:", e);
+            }
         }
 
         function exitTest() {
-            if (document.exitFullscreen) document.exitFullscreen().catch(()=>{});
+            try {
+                if (document.exitFullscreen) document.exitFullscreen().catch(()=>{});
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+                else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
+                else if (document.msExitFullscreen) document.msExitFullscreen();
+            } catch(e) {}
             
             // Safe fallback for Preview Environments (Canvas/iframes) to prevent routing errors
             if (window.location.protocol === 'blob:' || window.self !== window.top) {
@@ -243,7 +256,7 @@
         // ==========================================
         // 4. TEST EXECUTION LOGIC
         // ==========================================
-        function startPPDT() { appState.testQueue = []; appState.results.ppdt = TAT_IMAGES_POOL[Math.floor(Math.random() * TAT_IMAGES_POOL.length)]; playInstructions('PPDT', executePPDTPhase1); }
+        function startPPDT() { appState.testQueue = []; appState.results.ppdt = PPDT_IMAGES_POOL[Math.floor(Math.random() * PPDT_IMAGES_POOL.length)]; playInstructions('PPDT', executePPDTPhase1); }
 
         function executePPDTPhase1() {
             showView('ppdt-display-view');
@@ -251,7 +264,7 @@
             const img = document.getElementById('ppdt-image'); const loading = document.getElementById('ppdt-loading');
             img.classList.add('hidden'); loading.classList.remove('hidden'); img.crossOrigin = "Anonymous";
             img.onload = () => { loading.classList.add('hidden'); img.classList.remove('hidden'); try { appState.results.ppdtObj = { data: getBase64Image(img), w: img.naturalWidth, h: img.naturalHeight }; } catch(e){} appState.currentTimeout = setTimeout(executePPDTPhase2, 30000); };
-            img.onerror = () => { appState.results.ppdt = TAT_IMAGES_POOL[Math.floor(Math.random() * TAT_IMAGES_POOL.length)]; img.src = appState.results.ppdt; };
+            img.onerror = () => { appState.results.ppdt = PPDT_IMAGES_POOL[Math.floor(Math.random() * PPDT_IMAGES_POOL.length)]; img.src = appState.results.ppdt; };
             img.src = appState.results.ppdt;
         }
         function executePPDTPhase2() { document.getElementById('ppdt-phase1').classList.add('hidden'); document.getElementById('ppdt-phase2').classList.remove('hidden'); appState.currentTimeout = setTimeout(executePPDTPhase3, 60000); }
